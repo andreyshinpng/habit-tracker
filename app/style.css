@@ -25,7 +25,7 @@ header {
     background: #2c2c2e;
     padding: 20px;
     border-radius: 12px;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
 h1 {
@@ -202,7 +202,7 @@ button:hover {
 }
 
 .settings-group {
-    margin-bottom: 20px;
+    margin-bottom: 16px;
 }
 
 .settings-group label {

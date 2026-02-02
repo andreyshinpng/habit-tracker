@@ -408,6 +408,17 @@ function applyCheckedCellColor() {
         .spinner {
             border-top-color: ${color} !important;
         }
+        .checkbox-label input[type="checkbox"]:checked + span::before {
+            background: ${color};
+            border-color: ${color};
+        }
+        select:hover {
+            border-color: ${color};
+        }
+        
+        select:focus {
+            border-color: ${color};
+        }
     `;
     if (!document.getElementById('dynamic-style')) {
         document.head.appendChild(style);
