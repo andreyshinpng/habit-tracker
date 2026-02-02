@@ -53,8 +53,8 @@
                 <p class="delete-habit-name" id="deleteHabitNameDisplay"></p>
                 <input type="text" id="deleteHabitNameInput" placeholder="Enter habit name">
                 <div class="modal-buttons">
-                    <button id="confirmDeleteBtn" disabled>Delete</button>
-                    <button id="cancelDeleteBtn">Cancel</button>
+                    <button id="confirmDeleteBtn" class="button-accent" disabled>Delete</button>
+                    <button id="cancelDeleteBtn" class="button">Cancel</button>
                 </div>
             </div>
         </div>
