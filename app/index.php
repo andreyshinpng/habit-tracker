@@ -12,7 +12,6 @@
 <body>
     <div class="container">
         <header>
-            <h1>Habit Tracker</h1>
             <div class="controls">
                 <select id="monthSelect"></select>
                 <select id="yearSelect"></select>

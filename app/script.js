@@ -51,6 +51,12 @@ async function loadData() {
     }
 }
 
+function getDayOfWeekShort(year, month, day) {
+    const date = new Date(year, month, day);
+    const days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+    return days[date.getDay()];
+}
+
 function renderTable(data) {
     const container = document.getElementById('tableContainer');
     const daysInMonth = getDaysInMonth(currentYear, currentMonth);
@@ -75,8 +81,7 @@ function renderTable(data) {
 
     data.habits.forEach(habit => {
         html += `<tr data-habit-id="${habit.id}" data-habit-name="${habit.name.replace(/"/g, '&quot;')}">
-                 <td><div class="habit-name">
-                 <span class="drag-handle" draggable="true">⋮⋮</span>
+                 <td><div class="habit-name" draggable="true">
                  <span class="habit-text">${habit.name}</span>
                  </div></td>`;
         
@@ -85,9 +90,10 @@ function renderTable(data) {
             const isChecked = data.checks.some(check => 
                 check.habit_id == habit.id && check.check_date === dateStr
             );
+            const dayOfWeek = getDayOfWeekShort(currentYear, currentMonth, day);
             
             html += `<td><button class="day-cell ${isChecked ? 'checked' : ''}" 
-                     onclick="toggleCheck(${habit.id}, '${dateStr}')"></button></td>`;
+                     onclick="toggleCheck(${habit.id}, '${dateStr}')">${dayOfWeek}</button></td>`;
         }
         
         html += '</tr>';
@@ -149,17 +155,17 @@ document.getElementById('habitName').addEventListener('keypress', (e) => {
 let draggedRow = null;
 
 function initDragAndDrop() {
-    const handles = document.querySelectorAll('.drag-handle');
+    const habitNames = document.querySelectorAll('.habit-name');
     const rows = document.querySelectorAll('tbody tr');
     
-    handles.forEach(handle => {
-        handle.addEventListener('dragstart', (e) => {
-            draggedRow = handle.closest('tr');
+    habitNames.forEach(habitName => {
+        habitName.addEventListener('dragstart', (e) => {
+            draggedRow = habitName.closest('tr');
             draggedRow.classList.add('dragging');
             e.dataTransfer.effectAllowed = 'move';
         });
         
-        handle.addEventListener('dragend', (e) => {
+        habitName.addEventListener('dragend', (e) => {
             if (draggedRow) {
                 draggedRow.classList.remove('dragging');
                 draggedRow = null;
