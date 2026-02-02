@@ -1,10 +1,31 @@
 let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
+let loadingStartTime = null;
 
 const monthNames = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
 ];
+
+function showSpinner() {
+    const spinner = document.getElementById('loadingSpinner');
+    spinner.classList.remove('hidden');
+    loadingStartTime = Date.now();
+}
+
+function hideSpinner() {
+    const spinner = document.getElementById('loadingSpinner');
+    const elapsed = Date.now() - loadingStartTime;
+    const minDisplayTime = 500;
+    
+    if (elapsed < minDisplayTime) {
+        setTimeout(() => {
+            spinner.classList.add('hidden');
+        }, minDisplayTime - elapsed);
+    } else {
+        spinner.classList.add('hidden');
+    }
+}
 
 function initSelects() {
     const monthSelect = document.getElementById('monthSelect');
@@ -42,12 +63,15 @@ function getDaysInMonth(year, month) {
 }
 
 async function loadData() {
+    showSpinner();
     try {
         const response = await fetch(`api.php?action=getHabits&month=${currentMonth + 1}&year=${currentYear}`);
         const data = await response.json();
         renderTable(data);
     } catch (error) {
         console.error('Error loading data:', error);
+    } finally {
+        hideSpinner();
     }
 }
 
@@ -90,7 +114,8 @@ function renderTable(data) {
             const isChecked = data.checks.some(check => 
                 check.habit_id == habit.id && check.check_date === dateStr
             );
-            const dayOfWeek = getDayOfWeekShort(currentYear, currentMonth, day);
+            const showWeekdays = localStorage.getItem('showWeekdays') !== 'false';
+            const dayOfWeek = showWeekdays ? getDayOfWeekShort(currentYear, currentMonth, day) : '';
             
             html += `<td><button class="day-cell ${isChecked ? 'checked' : ''}" 
                      onclick="toggleCheck(${habit.id}, '${dateStr}')">${dayOfWeek}</button></td>`;
@@ -338,5 +363,65 @@ document.getElementById('confirmDeleteBtn').addEventListener('click', async () =
     }
 });
 
+document.getElementById('settingsBtn').addEventListener('click', () => {
+    const savedColor = localStorage.getItem('checkedCellColor') || '#2f97b4';
+    const showWeekdays = localStorage.getItem('showWeekdays') !== 'false';
+    document.getElementById('checkedColorPicker').value = savedColor;
+    document.getElementById('showWeekdaysCheckbox').checked = showWeekdays;
+    document.getElementById('settingsForm').style.display = 'flex';
+});
+
+document.getElementById('cancelSettingsBtn').addEventListener('click', () => {
+    document.getElementById('settingsForm').style.display = 'none';
+});
+
+document.getElementById('saveSettingsBtn').addEventListener('click', () => {
+    const color = document.getElementById('checkedColorPicker').value;
+    const showWeekdays = document.getElementById('showWeekdaysCheckbox').checked;
+    localStorage.setItem('checkedCellColor', color);
+    localStorage.setItem('showWeekdays', showWeekdays);
+    applyCheckedCellColor();
+    document.getElementById('settingsForm').style.display = 'none';
+    loadData();
+});
+
+function applyCheckedCellColor() {
+    const color = localStorage.getItem('checkedCellColor') || '#2f97b4';
+    const hoverColor = adjustColor(color, 30);
+    const style = document.getElementById('dynamic-style') || document.createElement('style');
+    style.id = 'dynamic-style';
+    style.textContent = `
+        .checkbox-label input[type="checkbox"]:checked + span::before {
+            background: ${color};
+            border-color: ${color};
+        }
+        .checkbox-label:hover span::before {
+            border-color: ${color};
+        }
+        .day-cell.checked {
+            background: ${color} !important;
+            border-color: ${hoverColor} !important;
+        }
+        .button-accent {
+            background: ${color} !important;
+        }
+        .spinner {
+            border-top-color: ${color} !important;
+        }
+    `;
+    if (!document.getElementById('dynamic-style')) {
+        document.head.appendChild(style);
+    }
+}
+
+function adjustColor(color, amount) {
+    const num = parseInt(color.replace('#', ''), 16);
+    const r = Math.min(255, ((num >> 16) & 0xff) + amount);
+    const g = Math.min(255, ((num >> 8) & 0xff) + amount);
+    const b = Math.min(255, (num & 0xff) + amount);
+    return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
+}
+
+applyCheckedCellColor();
 initSelects();
 loadData();

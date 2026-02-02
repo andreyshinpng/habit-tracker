@@ -13,9 +13,14 @@
     <div class="container">
         <header>
             <div class="controls">
-                <select id="monthSelect"></select>
-                <select id="yearSelect"></select>
-                <button id="addHabitBtn">+ Add habit</button>
+                <div class="controls-left">
+                    <select id="monthSelect"></select>
+                    <select id="yearSelect"></select>
+                </div>
+                <div class="controls-right">
+                    <button id="settingsBtn" class="button">Settings</button>
+                    <button id="addHabitBtn" class="button-accent">Add habit</button>
+                </div>
             </div>
         </header>
 
@@ -24,8 +29,8 @@
                 <h3>Create habit</h3>
                 <input type="text" id="habitName" placeholder="Habit name">
                 <div class="modal-buttons">
-                    <button id="saveHabitBtn">Save</button>
-                    <button id="cancelHabitBtn">Cancel</button>
+                    <button id="saveHabitBtn" class="button-accent">Save</button>
+                    <button id="cancelHabitBtn" class="button">Cancel</button>
                 </div>
             </div>
         </div>
@@ -35,8 +40,8 @@
                 <h3>Edit habit</h3>
                 <input type="text" id="editHabitName" placeholder="Habit name">
                 <div class="modal-buttons">
-                    <button id="updateHabitBtn">Save</button>
-                    <button id="cancelEditBtn">Cancel</button>
+                    <button id="updateHabitBtn" class="button-accent">Save</button>
+                    <button id="cancelEditBtn" class="button">Cancel</button>
                 </div>
             </div>
         </div>
@@ -54,12 +59,38 @@
             </div>
         </div>
 
+        <div id="settingsForm" class="modal" style="display: none;">
+            <div class="modal-content">
+                <h3>Settings</h3>
+                <div class="settings-group">
+                    <label class="color-picker-label">
+                        <input type="color" id="checkedColorPicker" value="#2f97b4">
+                        <span>Checked cell color</span>
+                    </label>
+                </div>
+                <div class="settings-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="showWeekdaysCheckbox" checked>
+                        <span>Show weekdays in cells</span>
+                    </label>
+                </div>
+                <div class="modal-buttons">
+                    <button id="saveSettingsBtn" class="button-accent">Save</button>
+                    <button id="cancelSettingsBtn" class="button">Cancel</button>
+                </div>
+            </div>
+        </div>
+
         <div id="contextMenu" class="context-menu" style="display: none;">
             <button id="contextEdit">Edit</button>
             <button id="contextDelete">Delete</button>
         </div>
 
         <div id="tableContainer"></div>
+    </div>
+
+    <div id="loadingSpinner" class="loading-overlay">
+        <div class="spinner"></div>
     </div>
 
     <script src="script.js"></script>
