@@ -191,7 +191,8 @@ button:hover {
 .color-picker-label {
     display: flex !important;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
+    width: fit-content;
     cursor: pointer;
     margin-bottom: 0 !important;
 }
@@ -206,6 +207,7 @@ button:hover {
 
 .settings-group label {
     display: block;
+    width: fit-content;
     margin-bottom: 10px;
     font-size: 14px;
     font-weight: 500;
