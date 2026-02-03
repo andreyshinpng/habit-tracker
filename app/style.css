@@ -406,9 +406,22 @@ th:first-child {
     color: #757577;
 }
 
+.day-cell.weekend {
+    border: 1px solid #4d4d4d;
+    background: #3e3e3e;
+    color: #828282;
+}
+
+.day-cell.weekend:hover {
+    border: 1px solid #5d5d5d;
+    background: #494949;
+    color: #8b8b8b;
+}
+
 .day-cell:hover {
-    border-color: #525252;
-    background: #575757;
+    border: 1px solid #464646;
+    background: #3e3e3e;
+    color: #6f6f6f;
 }
 
 .day-cell.checked {

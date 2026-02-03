@@ -64,14 +64,20 @@
                 <h3>Settings</h3>
                 <div class="settings-group">
                     <label class="color-picker-label">
-                        <input type="color" id="checkedColorPicker" value="#2f97b4">
-                        <span>Checked cell color</span>
+                        <input type="color" id="defaultColorPicker" value="#2f97b4">
+                        <span>Accent color</span>
                     </label>
                 </div>
                 <div class="settings-group">
                     <label class="checkbox-label">
                         <input type="checkbox" id="showWeekdaysCheckbox" checked>
-                        <span>Show weekdays in cells</span>
+                        <span>Show weekdays</span>
+                    </label>
+                </div>
+                <div class="settings-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="highlightWeekendsCheckbox" checked>
+                        <span>Highlight weekends</span>
                     </label>
                 </div>
                 <div class="modal-buttons">

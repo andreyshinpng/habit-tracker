@@ -81,6 +81,12 @@ function getDayOfWeekShort(year, month, day) {
     return days[date.getDay()];
 }
 
+function isWeekend(year, month, day) {
+    const date = new Date(year, month, day);
+    const dayOfWeek = date.getDay();
+    return dayOfWeek === 0 || dayOfWeek === 6;
+}
+
 function renderTable(data) {
     const container = document.getElementById('tableContainer');
     const daysInMonth = getDaysInMonth(currentYear, currentMonth);
@@ -104,7 +110,10 @@ function renderTable(data) {
     html += '</tr></thead><tbody>';
 
     data.habits.forEach(habit => {
-        html += `<tr data-habit-id="${habit.id}" data-habit-name="${habit.name.replace(/"/g, '&quot;')}">
+        const defaultColor = localStorage.getItem('defaultHabitColor') || '#2f97b4';
+        const habitColor = habit.color || defaultColor;
+        const hoverColor = adjustColor(habitColor, 30);
+        html += `<tr data-habit-id="${habit.id}" data-habit-name="${habit.name.replace(/"/g, '&quot;')}" data-habit-color="${habitColor}">
                  <td><div class="habit-name" draggable="true">
                  <span class="habit-text">${habit.name}</span>
                  </div></td>`;
@@ -116,8 +125,11 @@ function renderTable(data) {
             );
             const showWeekdays = localStorage.getItem('showWeekdays') !== 'false';
             const dayOfWeek = showWeekdays ? getDayOfWeekShort(currentYear, currentMonth, day) : '';
+            const highlightWeekends = localStorage.getItem('highlightWeekends') !== 'false';
+            const weekend = highlightWeekends && isWeekend(currentYear, currentMonth, day);
             
-            html += `<td><button class="day-cell ${isChecked ? 'checked' : ''}" 
+            const cellStyle = isChecked ? `style="background: ${habitColor} !important; border-color: ${hoverColor} !important;"` : '';
+            html += `<td><button class="day-cell ${isChecked ? 'checked' : ''} ${weekend ? 'weekend' : ''}" ${cellStyle}
                      onclick="toggleCheck(${habit.id}, '${dateStr}')">${dayOfWeek}</button></td>`;
         }
         
@@ -145,8 +157,10 @@ async function toggleCheck(habitId, date) {
 }
 
 document.getElementById('addHabitBtn').addEventListener('click', () => {
+    const defaultColor = localStorage.getItem('defaultHabitColor') || '#2f97b4';
     document.getElementById('addHabitForm').style.display = 'flex';
     document.getElementById('habitName').value = '';
+    document.getElementById('habitColor').value = defaultColor;
     document.getElementById('habitName').focus();
 });
 
@@ -156,13 +170,14 @@ document.getElementById('cancelHabitBtn').addEventListener('click', () => {
 
 document.getElementById('saveHabitBtn').addEventListener('click', async () => {
     const name = document.getElementById('habitName').value.trim();
+    const color = document.getElementById('habitColor').value;
     if (!name) return;
 
     try {
         await fetch('api.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'addHabit', name })
+            body: JSON.stringify({ action: 'addHabit', name, color })
         });
         document.getElementById('addHabitForm').style.display = 'none';
         loadData();
@@ -278,8 +293,11 @@ function initContextMenu() {
 document.getElementById('contextEdit').addEventListener('click', () => {
     const row = document.querySelector(`tr[data-habit-id="${currentContextHabitId}"]`);
     const habitName = row.dataset.habitName;
+    const defaultColor = localStorage.getItem('defaultHabitColor') || '#2f97b4';
+    const habitColor = row.dataset.habitColor || defaultColor;
     
     document.getElementById('editHabitName').value = habitName;
+    document.getElementById('editHabitColor').value = habitColor;
     document.getElementById('editHabitForm').style.display = 'flex';
     document.getElementById('editHabitName').focus();
 });
@@ -302,6 +320,7 @@ document.getElementById('cancelEditBtn').addEventListener('click', () => {
 
 document.getElementById('updateHabitBtn').addEventListener('click', async () => {
     const name = document.getElementById('editHabitName').value.trim();
+    const color = document.getElementById('editHabitColor').value;
     if (!name) return;
 
     try {
@@ -311,7 +330,8 @@ document.getElementById('updateHabitBtn').addEventListener('click', async () => 
             body: JSON.stringify({ 
                 action: 'updateHabit', 
                 habitId: currentContextHabitId,
-                name 
+                name,
+                color
             })
         });
         document.getElementById('editHabitForm').style.display = 'none';
@@ -364,10 +384,12 @@ document.getElementById('confirmDeleteBtn').addEventListener('click', async () =
 });
 
 document.getElementById('settingsBtn').addEventListener('click', () => {
-    const savedColor = localStorage.getItem('checkedCellColor') || '#2f97b4';
+    const defaultColor = localStorage.getItem('defaultHabitColor') || '#2f97b4';
     const showWeekdays = localStorage.getItem('showWeekdays') !== 'false';
-    document.getElementById('checkedColorPicker').value = savedColor;
+    const highlightWeekends = localStorage.getItem('highlightWeekends') !== 'false';
+    document.getElementById('defaultColorPicker').value = defaultColor;
     document.getElementById('showWeekdaysCheckbox').checked = showWeekdays;
+    document.getElementById('highlightWeekendsCheckbox').checked = highlightWeekends;
     document.getElementById('settingsForm').style.display = 'flex';
 });
 
@@ -376,53 +398,28 @@ document.getElementById('cancelSettingsBtn').addEventListener('click', () => {
 });
 
 document.getElementById('saveSettingsBtn').addEventListener('click', () => {
-    const color = document.getElementById('checkedColorPicker').value;
+    const defaultColor = document.getElementById('defaultColorPicker').value;
     const showWeekdays = document.getElementById('showWeekdaysCheckbox').checked;
-    localStorage.setItem('checkedCellColor', color);
+    const highlightWeekends = document.getElementById('highlightWeekendsCheckbox').checked;
+    localStorage.setItem('defaultHabitColor', defaultColor);
     localStorage.setItem('showWeekdays', showWeekdays);
-    applyCheckedCellColor();
+    localStorage.setItem('highlightWeekends', highlightWeekends);
+    applyAccentColor();
     document.getElementById('settingsForm').style.display = 'none';
     loadData();
 });
 
-function applyCheckedCellColor() {
-    const color = localStorage.getItem('checkedCellColor') || '#2f97b4';
-    const hoverColor = adjustColor(color, 30);
-    const style = document.getElementById('dynamic-style') || document.createElement('style');
-    style.id = 'dynamic-style';
-    style.textContent = `
-        .checkbox-label input[type="checkbox"]:checked + span::before {
-            background: ${color};
-            border-color: ${color};
-        }
-        .checkbox-label:hover span::before {
-            border-color: ${color};
-        }
-        .day-cell.checked {
-            background: ${color} !important;
-            border-color: ${hoverColor} !important;
-        }
-        .button-accent {
-            background: ${color} !important;
-        }
-        .spinner {
-            border-top-color: ${color} !important;
-        }
-        .checkbox-label input[type="checkbox"]:checked + span::before {
-            background: ${color};
-            border-color: ${color};
-        }
-        select:hover {
-            border-color: ${color};
-        }
-        
-        select:focus {
-            border-color: ${color};
-        }
-    `;
-    if (!document.getElementById('dynamic-style')) {
-        document.head.appendChild(style);
-    }
+function getWeekendColor(baseColor) {
+    const num = parseInt(baseColor.replace('#', ''), 16);
+    const r = (num >> 16) & 0xff;
+    const g = (num >> 8) & 0xff;
+    const b = num & 0xff;
+    
+    const newR = Math.floor(r * 0.7);
+    const newG = Math.floor(g * 0.7);
+    const newB = Math.floor(b * 0.7);
+    
+    return '#' + ((newR << 16) | (newG << 8) | newB).toString(16).padStart(6, '0');
 }
 
 function adjustColor(color, amount) {
@@ -433,6 +430,34 @@ function adjustColor(color, amount) {
     return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
 }
 
-applyCheckedCellColor();
+function applyAccentColor() {
+    const accentColor = localStorage.getItem('defaultHabitColor') || '#2f97b4';
+    const hoverColor = adjustColor(accentColor, 30);
+    const style = document.getElementById('accent-style') || document.createElement('style');
+    style.id = 'accent-style';
+    style.textContent = `
+        .button-accent {
+            background: ${accentColor} !important;
+        }
+        .button-accent:hover {
+            background: ${hoverColor} !important;
+        }
+        .spinner {
+            border-top-color: ${accentColor} !important;
+        }
+        .checkbox-label input[type="checkbox"]:checked + span::before {
+            background: ${accentColor} !important;
+            border-color: ${accentColor} !important;
+        }
+        .checkbox-label:hover span::before {
+            border-color: ${accentColor} !important;
+        }
+    `;
+    if (!document.getElementById('accent-style')) {
+        document.head.appendChild(style);
+    }
+}
+
+applyAccentColor();
 initSelects();
 loadData();
