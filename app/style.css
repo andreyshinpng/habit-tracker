@@ -96,6 +96,17 @@ select option {
     cursor: pointer;
 }
 
+.button-with-icon {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px 10px 14px !important;
+}
+
+.button-with-icon svg {
+    flex-shrink: 0;
+}
+
 .button-accent {
     padding: 10px 20px;
     background: #0a84ff;
