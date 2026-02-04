@@ -456,9 +456,10 @@ function getWeekendColor(baseColor) {
     const g = (num >> 8) & 0xff;
     const b = num & 0xff;
     
-    const newR = Math.floor(r * 0.7);
-    const newG = Math.floor(g * 0.7);
-    const newB = Math.floor(b * 0.7);
+    const factor = 0.2;
+    const newR = Math.min(255, Math.floor(r + (255 - r) * factor));
+    const newG = Math.min(255, Math.floor(g + (255 - g) * factor));
+    const newB = Math.min(255, Math.floor(b + (255 - b) * factor));
     
     return '#' + ((newR << 16) | (newG << 8) | newB).toString(16).padStart(6, '0');
 }
