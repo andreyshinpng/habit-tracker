@@ -87,9 +87,37 @@ function isWeekend(year, month, day) {
     return dayOfWeek === 0 || dayOfWeek === 6;
 }
 
+function getCurrentWeekRange(year, month) {
+    const today = new Date();
+    const currentDay = today.getDate();
+    const currentMonth = today.getMonth();
+    const currentYear = today.getFullYear();
+    
+    if (year !== currentYear || month !== currentMonth) {
+        return { start: 1, end: getDaysInMonth(year, month) };
+    }
+    
+    const dayOfWeek = today.getDay();
+    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    const sundayOffset = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;
+    
+    const monday = new Date(today);
+    monday.setDate(currentDay + mondayOffset);
+    
+    const sunday = new Date(today);
+    sunday.setDate(currentDay + sundayOffset);
+    
+    const start = Math.max(1, monday.getDate());
+    const end = Math.min(getDaysInMonth(year, month), sunday.getDate());
+    
+    return { start, end };
+}
+
 function renderTable(data) {
     const container = document.getElementById('tableContainer');
     const daysInMonth = getDaysInMonth(currentYear, currentMonth);
+    const showOnlyCurrentWeek = localStorage.getItem('showOnlyCurrentWeek') === 'true';
+    const weekRange = showOnlyCurrentWeek ? getCurrentWeekRange(currentYear, currentMonth) : { start: 1, end: daysInMonth };
 
     if (!data.habits || data.habits.length === 0) {
         container.innerHTML = `
@@ -103,7 +131,7 @@ function renderTable(data) {
 
     let html = '<table><thead><tr><th></th>';
     
-    for (let day = 1; day <= daysInMonth; day++) {
+    for (let day = weekRange.start; day <= weekRange.end; day++) {
         html += `<th>${day}</th>`;
     }
     
@@ -121,7 +149,7 @@ function renderTable(data) {
                  <span class="habit-text">${habit.name}</span>
                  </div></td>`;
         
-        for (let day = 1; day <= daysInMonth; day++) {
+        for (let day = weekRange.start; day <= weekRange.end; day++) {
             const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
             const isChecked = data.checks.some(check => 
                 check.habit_id == habit.id && check.check_date === dateStr
@@ -428,9 +456,11 @@ document.getElementById('settingsBtn').addEventListener('click', () => {
     const defaultColor = localStorage.getItem('defaultHabitColor') || '#2f97b4';
     const showWeekdays = localStorage.getItem('showWeekdays') !== 'false';
     const highlightWeekends = localStorage.getItem('highlightWeekends') !== 'false';
+    const showOnlyCurrentWeek = localStorage.getItem('showOnlyCurrentWeek') === 'true';
     document.getElementById('defaultColorPicker').value = defaultColor;
     document.getElementById('showWeekdaysCheckbox').checked = showWeekdays;
     document.getElementById('highlightWeekendsCheckbox').checked = highlightWeekends;
+    document.getElementById('showOnlyCurrentWeekCheckbox').checked = showOnlyCurrentWeek;
     document.getElementById('settingsForm').style.display = 'flex';
 });
 
@@ -442,9 +472,11 @@ document.getElementById('saveSettingsBtn').addEventListener('click', () => {
     const defaultColor = document.getElementById('defaultColorPicker').value;
     const showWeekdays = document.getElementById('showWeekdaysCheckbox').checked;
     const highlightWeekends = document.getElementById('highlightWeekendsCheckbox').checked;
+    const showOnlyCurrentWeek = document.getElementById('showOnlyCurrentWeekCheckbox').checked;
     localStorage.setItem('defaultHabitColor', defaultColor);
     localStorage.setItem('showWeekdays', showWeekdays);
     localStorage.setItem('highlightWeekends', highlightWeekends);
+    localStorage.setItem('showOnlyCurrentWeek', showOnlyCurrentWeek);
     applyAccentColor();
     document.getElementById('settingsForm').style.display = 'none';
     loadData();
@@ -456,7 +488,7 @@ function getWeekendColor(baseColor) {
     const g = (num >> 8) & 0xff;
     const b = num & 0xff;
     
-    const factor = 0.2;
+    const factor = 0.25;
     const newR = Math.min(255, Math.floor(r + (255 - r) * factor));
     const newG = Math.min(255, Math.floor(g + (255 - g) * factor));
     const newB = Math.min(255, Math.floor(b + (255 - b) * factor));

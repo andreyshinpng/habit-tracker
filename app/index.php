@@ -116,6 +116,12 @@
                         <span>Highlight weekends</span>
                     </label>
                 </div>
+                <div class="settings-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="showOnlyCurrentWeekCheckbox">
+                        <span>Show only current week</span>
+                    </label>
+                </div>
                 <div class="modal-buttons">
                     <button id="saveSettingsBtn" class="button-accent">Save</button>
                     <button id="cancelSettingsBtn" class="button">Cancel</button>

@@ -27,6 +27,7 @@ header {
     padding: 20px;
     border-radius: 12px;
     margin-bottom: 20px;
+    min-width: 800px;
 }
 
 h1 {
@@ -341,14 +342,16 @@ button:hover {
 }
 
 #tableContainer {
+    margin: 0 auto;
     background: #2c2c2e;
     border-radius: 12px;
     overflow: hidden;
     padding: 20px;
+    width: fit-content;
 }
 
 table {
-    width: 100%;
+    width: auto;
     border-collapse: separate;
     border-spacing: 0;
 }
@@ -372,11 +375,19 @@ th {
     position: sticky;
     top: 0;
     z-index: 10;
-    /*padding: 8px 4px;*/
+    width: 32px;
+}
+
+th:not(:first-child) {
+    width: 32px;
 }
 
 td {
     padding: 2px;
+}
+
+td:not(:first-child) {
+    width: 32px;
 }
 
 td:first-child {
