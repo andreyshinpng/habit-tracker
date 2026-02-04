@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
     $month = $_GET['month'] ?? date('m');
     $year = $_GET['year'] ?? date('Y');
     
-    $stmt = $pdo->prepare("SELECT id, name FROM habits WHERE deleted_at IS NULL ORDER BY sort_order ASC, id ASC");
+    $stmt = $pdo->prepare("SELECT id, name, color FROM habits WHERE deleted_at IS NULL ORDER BY sort_order ASC, id ASC");
     $stmt->execute();
     $habits = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
@@ -39,13 +39,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     if ($action === 'addHabit') {
         $name = trim($data['name'] ?? '');
+        $color = $data['color'] ?? null;
         if ($name) {
             $stmt = $pdo->prepare("SELECT COALESCE(MAX(sort_order), 0) + 1 as next_order FROM habits WHERE deleted_at IS NULL");
             $stmt->execute();
             $nextOrder = $stmt->fetch(PDO::FETCH_ASSOC)['next_order'];
             
-            $stmt = $pdo->prepare("INSERT INTO habits (name, sort_order) VALUES (?, ?)");
-            $stmt->execute([$name, $nextOrder]);
+            $stmt = $pdo->prepare("INSERT INTO habits (name, sort_order, color) VALUES (?, ?, ?)");
+            $stmt->execute([$name, $nextOrder, $color]);
             echo json_encode(['success' => true]);
         }
     }
@@ -60,9 +61,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'updateHabit') {
         $habitId = $data['habitId'] ?? 0;
         $name = trim($data['name'] ?? '');
+        $color = $data['color'] ?? null;
         if ($name && $habitId) {
-            $stmt = $pdo->prepare("UPDATE habits SET name = ? WHERE id = ?");
-            $stmt->execute([$name, $habitId]);
+            $stmt = $pdo->prepare("UPDATE habits SET name = ?, color = ? WHERE id = ?");
+            $stmt->execute([$name, $color, $habitId]);
             echo json_encode(['success' => true]);
         }
     }

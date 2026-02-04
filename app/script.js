@@ -113,7 +113,10 @@ function renderTable(data) {
         const defaultColor = localStorage.getItem('defaultHabitColor') || '#2f97b4';
         const habitColor = habit.color || defaultColor;
         const hoverColor = adjustColor(habitColor, 30);
-        html += `<tr data-habit-id="${habit.id}" data-habit-name="${habit.name.replace(/"/g, '&quot;')}" data-habit-color="${habitColor}">
+        const weekendHabitColor = getWeekendColor(habitColor);
+        const weekendHoverColor = adjustColor(weekendHabitColor, 30);
+        
+        html += `<tr data-habit-id="${habit.id}" data-habit-name="${habit.name.replace(/"/g, '&quot;')}" data-habit-color="${habit.color || ''}">
                  <td><div class="habit-name" draggable="true">
                  <span class="habit-text">${habit.name}</span>
                  </div></td>`;
@@ -128,7 +131,13 @@ function renderTable(data) {
             const highlightWeekends = localStorage.getItem('highlightWeekends') !== 'false';
             const weekend = highlightWeekends && isWeekend(currentYear, currentMonth, day);
             
-            const cellStyle = isChecked ? `style="background: ${habitColor} !important; border-color: ${hoverColor} !important;"` : '';
+            let cellStyle = '';
+            if (isChecked && weekend) {
+                cellStyle = `style="background: ${weekendHabitColor} !important; border-color: ${weekendHoverColor} !important;"`;
+            } else if (isChecked) {
+                cellStyle = `style="background: ${habitColor} !important; border-color: ${hoverColor} !important;"`;
+            }
+            
             html += `<td><button class="day-cell ${isChecked ? 'checked' : ''} ${weekend ? 'weekend' : ''}" ${cellStyle}
                      onclick="toggleCheck(${habit.id}, '${dateStr}')">${dayOfWeek}</button></td>`;
         }
@@ -161,7 +170,18 @@ document.getElementById('addHabitBtn').addEventListener('click', () => {
     document.getElementById('addHabitForm').style.display = 'flex';
     document.getElementById('habitName').value = '';
     document.getElementById('habitColor').value = defaultColor;
+    document.getElementById('useAccentColor').checked = true;
+    document.getElementById('habitColorGroup').style.display = 'none';
     document.getElementById('habitName').focus();
+});
+
+document.getElementById('useAccentColor').addEventListener('change', (e) => {
+    const colorGroup = document.getElementById('habitColorGroup');
+    if (e.target.checked) {
+        colorGroup.style.display = 'none';
+    } else {
+        colorGroup.style.display = '';
+    }
 });
 
 document.getElementById('cancelHabitBtn').addEventListener('click', () => {
@@ -170,7 +190,8 @@ document.getElementById('cancelHabitBtn').addEventListener('click', () => {
 
 document.getElementById('saveHabitBtn').addEventListener('click', async () => {
     const name = document.getElementById('habitName').value.trim();
-    const color = document.getElementById('habitColor').value;
+    const useAccentColor = document.getElementById('useAccentColor').checked;
+    const color = useAccentColor ? null : document.getElementById('habitColor').value;
     if (!name) return;
 
     try {
@@ -294,12 +315,31 @@ document.getElementById('contextEdit').addEventListener('click', () => {
     const row = document.querySelector(`tr[data-habit-id="${currentContextHabitId}"]`);
     const habitName = row.dataset.habitName;
     const defaultColor = localStorage.getItem('defaultHabitColor') || '#2f97b4';
-    const habitColor = row.dataset.habitColor || defaultColor;
+    const habitColor = row.dataset.habitColor;
     
     document.getElementById('editHabitName').value = habitName;
-    document.getElementById('editHabitColor').value = habitColor;
+    
+    if (habitColor && habitColor !== 'null' && habitColor !== '') {
+        document.getElementById('editUseAccentColor').checked = false;
+        document.getElementById('editHabitColor').value = habitColor;
+        document.getElementById('editHabitColorGroup').style.display = '';
+    } else {
+        document.getElementById('editUseAccentColor').checked = true;
+        document.getElementById('editHabitColor').value = defaultColor;
+        document.getElementById('editHabitColorGroup').style.display = 'none';
+    }
+    
     document.getElementById('editHabitForm').style.display = 'flex';
     document.getElementById('editHabitName').focus();
+});
+
+document.getElementById('editUseAccentColor').addEventListener('change', (e) => {
+    const colorGroup = document.getElementById('editHabitColorGroup');
+    if (e.target.checked) {
+        colorGroup.style.display = 'none';
+    } else {
+        colorGroup.style.display = '';
+    }
 });
 
 document.getElementById('contextDelete').addEventListener('click', () => {
@@ -320,7 +360,8 @@ document.getElementById('cancelEditBtn').addEventListener('click', () => {
 
 document.getElementById('updateHabitBtn').addEventListener('click', async () => {
     const name = document.getElementById('editHabitName').value.trim();
-    const color = document.getElementById('editHabitColor').value;
+    const useAccentColor = document.getElementById('editUseAccentColor').checked;
+    const color = useAccentColor ? null : document.getElementById('editHabitColor').value;
     if (!name) return;
 
     try {

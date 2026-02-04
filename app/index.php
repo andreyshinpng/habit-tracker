@@ -40,6 +40,18 @@
             <div class="modal-content">
                 <h3>Create habit</h3>
                 <input type="text" id="habitName" placeholder="Habit name">
+                <div class="settings-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="useAccentColor" checked>
+                        <span>Use accent color</span>
+                    </label>
+                </div>
+                <div class="settings-group" id="habitColorGroup" style="display: none;">
+                    <label class="color-picker-label">
+                        <input type="color" id="habitColor" value="#2f97b4">
+                        <span>Custom habit color</span>
+                    </label>
+                </div>
                 <div class="modal-buttons">
                     <button id="saveHabitBtn" class="button-accent">Save</button>
                     <button id="cancelHabitBtn" class="button">Cancel</button>
@@ -51,6 +63,18 @@
             <div class="modal-content">
                 <h3>Edit habit</h3>
                 <input type="text" id="editHabitName" placeholder="Habit name">
+                <div class="settings-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="editUseAccentColor" checked>
+                        <span>Use accent color</span>
+                    </label>
+                </div>
+                <div class="settings-group" id="editHabitColorGroup" style="display: none;">
+                    <label class="color-picker-label">
+                        <input type="color" id="editHabitColor" value="#2f97b4">
+                        <span>Custom habit color</span>
+                    </label>
+                </div>
                 <div class="modal-buttons">
                     <button id="updateHabitBtn" class="button-accent">Save</button>
                     <button id="cancelEditBtn" class="button">Cancel</button>
