@@ -27,7 +27,7 @@ header {
     padding: 20px;
     border-radius: 12px;
     margin-bottom: 20px;
-    min-width: 800px;
+    max-width: 1200px;
 }
 
 h1 {
@@ -108,6 +108,27 @@ select option {
     flex-shrink: 0;
 }
 
+.icon-button {
+    padding: 10px;
+    background: #0a84ff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+}
+
+.icon-button:hover {
+    background: #409cff;
+}
+
+.icon-button svg {
+    flex-shrink: 0;
+}
+
 .button-accent {
     padding: 10px 20px;
     background: #0a84ff;
@@ -124,16 +145,12 @@ button:hover {
     background: #409cff;
 }
 
-#settingsBtn {
+#settingsBtn.icon-button {
     background: #48484a;
 }
 
-#settingsBtn:hover {
+#settingsBtn.icon-button:hover {
     background: #5a5a5c;
-}
-
-#addHabitBtn {
-    margin-left: auto;
 }
 
 .modal {

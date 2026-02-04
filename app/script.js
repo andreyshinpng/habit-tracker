@@ -526,6 +526,12 @@ function applyAccentColor() {
         .checkbox-label:hover span::before {
             border-color: ${accentColor} !important;
         }
+        .icon-button {
+            background: ${accentColor};
+        }
+        .icon-button:hover {
+            background: ${hoverColor};
+        }
     `;
     if (!document.getElementById('accent-style')) {
         document.head.appendChild(style);
