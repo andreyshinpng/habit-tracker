@@ -488,7 +488,7 @@ function getWeekendColor(baseColor) {
     const g = (num >> 8) & 0xff;
     const b = num & 0xff;
     
-    const factor = 0.25;
+    const factor = 0.1;
     const newR = Math.min(255, Math.floor(r + (255 - r) * factor));
     const newG = Math.min(255, Math.floor(g + (255 - g) * factor));
     const newB = Math.min(255, Math.floor(b + (255 - b) * factor));
